@@ -1,4 +1,3 @@
-using SeleniumInternalHelpersSupportLibrary;
 
 namespace FASTSelenium.ImageRecognition
 {
@@ -8,14 +7,8 @@ namespace FASTSelenium.ImageRecognition
 
         public static int waitTime = 60;
 
-        public static string MediaPath
-        {
-            get { return Reports.DEPLOYDIR + "\\"; }
-        }
+        public static string MediaPath { get; set; }
 
-        public static string OutputPath
-        {
-            get { return Reports.RUNRESULTDIR + @"\\ImageRecognition\\"; }
-        }
+        public static string OutputPath { get; set; }
     }    
 }
