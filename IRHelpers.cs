@@ -39,7 +39,7 @@ namespace FASTSelenium.ImageRecognition
             }
         }
 
-        public static void SaveInReportDir(Bitmap b)
+        public static void Save(Bitmap b)
         {
             using (var tmpImage = new Bitmap(b))
             {
