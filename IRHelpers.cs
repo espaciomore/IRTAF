@@ -43,8 +43,8 @@ namespace FASTSelenium.ImageRecognition
         {
             using (var tmpImage = new Bitmap(b))
             {
-                if (!Directory.Exists(IRConfig.OutputPath))
-                    Directory.CreateDirectory(IRConfig.OutputPath);
+                if (!Directory.Exists(IRConfig.OutputPath.TrimEnd('\\')))
+                    Directory.CreateDirectory(IRConfig.OutputPath.TrimEnd('\\'));
                 tmpImage.Save(IRConfig.OutputPath + "ScreenSample_" + DateTime.UtcNow.ToString("ddMMMyyyy_HHmmss_fffffff") + ".BMP", ImageFormat.Bmp);
             }
         }
