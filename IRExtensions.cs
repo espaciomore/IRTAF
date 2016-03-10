@@ -75,13 +75,13 @@ namespace FASTSelenium.ImageRecognition
                     if (bmp1.SameAs(imageCaptured))
                     {
                         if (IRConfig.canSaveScreenSamples)
-                            IRHelpers.SaveInReportDir(imageCaptured);
+                            IRHelpers.Save(imageCaptured);
 
                         return imageRect;
                     }
 
                     if (IRConfig.canSaveScreenSamples)
-                        IRHelpers.SaveInReportDir(imageCaptured);
+                        IRHelpers.Save(imageCaptured);
                 }
             }
             catch (Exception ex)
