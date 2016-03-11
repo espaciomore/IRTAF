@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Windows.Forms;
+using System.Windows.Input;
 
 namespace FASTSelenium.ImageRecognition
 {
@@ -37,10 +39,10 @@ namespace FASTSelenium.ImageRecognition
         {
             if (!this.Displayed)
                 IRHelpers.WaitUntil(this, _this => _this.FindElement(), TimeSpan.FromSeconds(IRConfig.waitTime));
-            Mouse.Click(button: System.Windows.Forms.MouseButtons.Left, modifierKeys: System.Windows.Input.ModifierKeys.None, screenCoordinate: this.CenterPoint);
+            Mouse.Click(button: MouseButtons.Left, modifierKeys: ModifierKeys.None, screenCoordinate: this.CenterPoint);
         }
 
-        public void Click(System.Windows.Input.ModifierKeys modifier = System.Windows.Input.ModifierKeys.None, System.Windows.Forms.MouseButtons button = System.Windows.Forms.MouseButtons.Left)
+        public void Click(ModifierKeys modifier = ModifierKeys.None, MouseButtons button = MouseButtons.Left)
         {
             if (!this.Displayed)
                 IRHelpers.WaitUntil(this, _this => _this.FindElement(), TimeSpan.FromSeconds(IRConfig.waitTime));
