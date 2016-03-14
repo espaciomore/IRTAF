@@ -35,17 +35,19 @@ namespace FASTSelenium.ImageRecognition
             bigStackThread.Start(element);
             if (bigStackThread.Join(timeout) == false)
             {
+                if (bigStackThread.ThreadState == ThreadState.Running)
+                    bigStackThread.Abort(ThreadState.Aborted);
                 throw new Exception("IRHelpers.WaitUntil timed out: " + bigStackThread.ThreadState);
             }
         }
 
-        public static void Save(Bitmap b)
+        public static void SaveInReportDir(Bitmap b)
         {
             using (var tmpImage = new Bitmap(b))
             {
                 if (!Directory.Exists(IRConfig.OutputPath.TrimEnd('\\')))
                     Directory.CreateDirectory(IRConfig.OutputPath.TrimEnd('\\'));
-                tmpImage.Save(IRConfig.OutputPath + "ScreenSample_" + DateTime.UtcNow.ToString("ddMMMyyyy_HHmmss_fffffff") + ".BMP", ImageFormat.Bmp);
+                tmpImage.Save(IRConfig.OutputPath + "\\ScreenSample_" + DateTime.UtcNow.ToString("ddMMMyyyy_HHmmss_fffffff") + ".BMP", ImageFormat.Bmp);
             }
         }
     }
