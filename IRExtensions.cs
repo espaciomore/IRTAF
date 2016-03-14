@@ -30,12 +30,17 @@ namespace FASTSelenium.ImageRecognition
             }
         }
 
-        public static Point GetCenterPoint(this Rectangle r)
+        public static System.Windows.Point GetCenterPoint(this Rectangle r)
         {
             var xCenter = ((r.Width % 2 != 0) ? (r.Width + 1) : (r.Width)) / 2;
             var yCenter = ((r.Height % 2 != 0) ? (r.Height + 1) : (r.Height)) / 2;
 
-            return new Point(r.Location.X + xCenter, r.Location.Y + yCenter);
+            return new System.Windows.Point(r.Location.X + xCenter, r.Location.Y + yCenter);
+        }
+
+        public static System.Drawing.Point ToDrawingPoint(this System.Windows.Point p)
+        {
+            return new System.Drawing.Point((int)p.X, (int)p.Y);
         }
     }
 
@@ -71,17 +76,16 @@ namespace FASTSelenium.ImageRecognition
 
                     var imageRect = new Rectangle(new Point(x, y), new Size(bmp1.Width, bmp1.Height));
                     var imageCaptured = imageRect.CaptureFromScreen();
-
+                    
                     if (bmp1.SameAs(imageCaptured))
                     {
-                        if (IRConfig.canSaveScreenSamples)
-                            IRHelpers.Save(imageCaptured);
-
                         return imageRect;
                     }
-
+                    
                     if (IRConfig.canSaveScreenSamples)
-                        IRHelpers.Save(imageCaptured);
+                        IRHelpers.SaveInReportDir(imageCaptured);
+                    else
+                        imageCaptured.Dispose();
                 }
             }
             catch (Exception ex)
@@ -137,6 +141,14 @@ namespace FASTSelenium.ImageRecognition
             map.Dispose();
 
             return c;
+        }
+
+        public static Point[] GetTrajectory(this Point p)
+        {
+            var curPosition = System.Windows.Forms.Cursor.Position;
+
+
+            throw new NotImplementedException("work in progess");
         }
     }
 }
