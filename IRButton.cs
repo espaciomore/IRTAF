@@ -139,7 +139,7 @@ namespace FASTSelenium.ImageRecognition
             var offset = this.By.GetOffset();
             var searchSurface = new System.Drawing.Rectangle(
                 new Point((int)offset.X + this.By.Left, (int)offset.Y + this.By.Top),
-                new Size((int)offset.X + (this.By.Right - this.By.Left), (int)offset.Y + (this.By.Bottom - this.By.Top))
+                new Size((this.By.Right - this.By.Left), (this.By.Bottom - this.By.Top))
             );
 
             if (!File.Exists(IRConfig.MediaPath + this.By.URI))
