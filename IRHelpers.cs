@@ -1,54 +1,37 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
 
 namespace FASTSelenium.ImageRecognition
 {
-    public static class IRHelpers
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
+    public class IRFindsBy : System.Attribute
     {
-        public static void InitElements<T>(T pageObject)
+        public readonly int Left = 0;
+        public readonly int Top = 0;
+
+        public string URI { get; set; }
+        public RotateFlipType RotateOrFlip { get; set; }
+        public int Right { get; set; }
+        public int Bottom { get; set; }
+        public string Text { get; set; }
+        public Dictionary<string, string> Attributes { get; set; }
+        public Dictionary<string, string> CssValues { get; set; }
+
+        protected int Offset_X { get; set; }
+        protected int Offset_Y { get; set; }
+
+        public IRFindsBy() : base() { }
+
+        public void SetOffset(int dx, int dy)
         {
-            foreach (PropertyInfo property in pageObject.GetType().GetProperties())
-            {
-                if (property.PropertyType == typeof(IRButton))
-                    property.SetValue(pageObject, new IRButton(GetAttributeFrom<IRFindsBy>(pageObject, property.Name)));                
-            }
+            this.Offset_X = dx;
+            this.Offset_Y = dy;
         }
 
-        public static T GetAttributeFrom<T>(this object instance, string propertyName) where T : Attribute
+        public System.Windows.Point GetOffset()
         {
-            var attrType = typeof(T);
-            var property = instance.GetType().GetProperty(propertyName);
-
-            return (T)property.GetCustomAttributes(attrType, false).First();
-        }
-
-        public static void WaitUntil(IRButton element, Action<IRButton> action, TimeSpan timeout)
-        {
-            var operation = new ParameterizedThreadStart(obj => action((IRButton)obj));
-            Thread bigStackThread = new Thread(operation, 1024 * 1024);
-
-            bigStackThread.Start(element);
-            if (bigStackThread.Join(timeout) == false)
-            {
-                if (bigStackThread.ThreadState == ThreadState.Running)
-                    bigStackThread.Abort(ThreadState.Aborted);
-                throw new Exception("IRHelpers.WaitUntil timed out: " + bigStackThread.ThreadState);
-            }
-        }
-
-        public static void SaveInReportDir(Bitmap b)
-        {
-            using (var tmpImage = new Bitmap(b))
-            {
-                if (!Directory.Exists(IRConfig.OutputPath.TrimEnd('\\')))
-                    Directory.CreateDirectory(IRConfig.OutputPath.TrimEnd('\\'));
-                tmpImage.Save(IRConfig.OutputPath + "\\ScreenSample_" + DateTime.UtcNow.ToString("ddMMMyyyy_HHmmss_fffffff") + ".BMP", ImageFormat.Bmp);
-            }
+            return new System.Windows.Point(this.Offset_X, this.Offset_Y);
         }
     }
 }
