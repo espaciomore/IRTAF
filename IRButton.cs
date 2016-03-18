@@ -2,7 +2,6 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions.Internal;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Windows.Input;
 using System.Windows.Forms;
@@ -16,19 +15,19 @@ namespace FASTSelenium.ImageRecognition
 
         private System.Windows.Point CenterPoint
         {
-            get { return (new Rectangle(this.Location, this.Size)).GetCenterPoint(); }
+            get { return (new System.Windows.Rect(this.Location.Convert(), this.Size.Convert())).GetCenterPoint(); }
         }
 
         private void Enable()
         {
-            if (!this.Displayed)
-                IRHelpers.WaitUntil(this, _this => _this.FindElement(), TimeSpan.FromSeconds(IRConfig.waitTime));
+            if (!this.Enabled)
+                IRHelpers.RetryUntil(this, TimeSpan.FromSeconds((double)IRConfig.waitTime));
         }
         
         private Dictionary<string, string> _attributes;
         private Dictionary<string, string> _cssValues;
         private ICoordinates _coordinates;
-        private System.Drawing.Point _LocationOnScreenOnceScrolledIntoView;
+        private System.Windows.Point _LocationOnScreenOnceScrolledIntoView;
         #endregion
 
         public IRButton() { }
@@ -51,13 +50,25 @@ namespace FASTSelenium.ImageRecognition
 
         public IRButton DelayOnce(int timeout = 1)
         {
-            try
-            {
-                IRHelpers.WaitUntil(this, _this => { while (true) { }; }, TimeSpan.FromSeconds(timeout));
-            }
-            catch { }
+            IRHelpers.WaitUntil(TimeSpan.FromSeconds((double)timeout));
 
             return this;
+        }
+
+        private bool IsVisible()
+        {
+            if (this.Enabled)
+                return true;
+
+            try
+            {
+                IRHelpers.RetryUntil(this, TimeSpan.FromSeconds((double)IRConfig.waitTime));
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public void Clear()
@@ -83,7 +94,7 @@ namespace FASTSelenium.ImageRecognition
         {
             this.Enable();
             IRMouse.Click(this.CenterPoint, button: MouseButtons.Right);
-            this.DelayOnce();
+            this.DelayOnce(2);
         }
 
         public void Click(ModifierKeys modifier = ModifierKeys.None, MouseButtons button = MouseButtons.Left)
@@ -114,7 +125,7 @@ namespace FASTSelenium.ImageRecognition
             return _cssValues[propertyName];
         }
 
-        public Point Location { get; set; }
+        public System.Drawing.Point Location { get; set; }
 
         public bool Selected { get; set; }
 
@@ -123,7 +134,7 @@ namespace FASTSelenium.ImageRecognition
             throw new NotImplementedException("Image Recognition Button does not support SendKeys with String class");
         }
 
-        public Size Size { get; set; }
+        public System.Drawing.Size Size { get; set; }
 
         public void Submit()
         {
@@ -137,9 +148,9 @@ namespace FASTSelenium.ImageRecognition
         public IWebElement FindElement()
         {
             var offset = this.By.GetOffset();
-            var searchSurface = new System.Drawing.Rectangle(
-                new Point((int)offset.X + this.By.Left, (int)offset.Y + this.By.Top),
-                new Size((this.By.Right - this.By.Left), (this.By.Bottom - this.By.Top))
+            var searchSurface = new System.Windows.Rect(
+                (new System.Windows.Point((int)offset.X + this.By.Left, (int)offset.Y + this.By.Top)).Translate(),
+                new System.Windows.Size((this.By.Right - this.By.Left), (this.By.Bottom - this.By.Top))
             );
 
             if (!File.Exists(IRConfig.MediaPath + this.By.URI))
@@ -152,10 +163,11 @@ namespace FASTSelenium.ImageRecognition
             var _IRButton = bmp.GetRectangle(searchSurface);
             if (_IRButton.HasValue)
             {
-                this.Location = _IRButton.Value.Location;
-                this.Size = _IRButton.Value.Size;
+                this.Location = _IRButton.Value.Location.Convert();
+                this.Size = _IRButton.Value.Size.Convert();
                 this.Displayed = true;
-                this.Coordinates = new IRCoordinate(this.Location);
+                this.Enabled = true;
+                this.Coordinates = new IRCoordinate(this.Location.Convert());
                 this.LocationOnScreenOnceScrolledIntoView = this.Location;
 
                 return this;
@@ -192,11 +204,11 @@ namespace FASTSelenium.ImageRecognition
             get
             {
                 this.Enable();
-                return this._LocationOnScreenOnceScrolledIntoView;
+                return this._LocationOnScreenOnceScrolledIntoView.Convert();
             }
             set
             {
-                this._LocationOnScreenOnceScrolledIntoView = value;
+                this._LocationOnScreenOnceScrolledIntoView = value.Convert();
             }
         }
     }
