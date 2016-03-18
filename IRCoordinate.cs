@@ -1,27 +1,23 @@
 using OpenQA.Selenium.Interactions.Internal;
-using System;
-using System.Drawing;
 
 namespace FASTSelenium.ImageRecognition
 {
     public class IRCoordinate : ICoordinates
     {
-        public IRCoordinate(Point p)
+        public IRCoordinate(System.Windows.Point p)
         {
-            this.LocationInDom = p;
-            this.LocationInViewport = p;
-            this.LocationOnScreen = p;
+            this.AuxiliaryLocator = p.Convert();
+            this.LocationInDom = p.Convert();
+            this.LocationInViewport = p.Convert();
+            this.LocationOnScreen = p.Convert();
         }
 
-        public object AuxiliaryLocator
-        {
-            get { throw new NotImplementedException("IRCoordinate does not support AuxiliaryLocator()"); }
-        }
+        public object AuxiliaryLocator { get; set; }
 
-        public Point LocationInDom { get; set; }
+        public System.Drawing.Point LocationInDom { get; set; }
 
-        public Point LocationInViewport { get; set; }
+        public System.Drawing.Point LocationInViewport { get; set; }
 
-        public Point LocationOnScreen { get; set; }
+        public System.Drawing.Point LocationOnScreen { get; set; }
     }
 }
