@@ -55,7 +55,7 @@ namespace FASTSelenium.ImageRecognition
             return this;
         }
 
-        private bool IsVisible()
+        private bool Visible()
         {
             if (this.Enabled)
                 return true;
