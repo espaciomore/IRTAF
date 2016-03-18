@@ -7,11 +7,12 @@ namespace FASTSelenium.ImageRecognition
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
     public class IRFindsBy : System.Attribute
     {
+        public readonly int Left = 0;
+        public readonly int Top = 0;
+
         public string URI { get; set; }
         public RotateFlipType RotateOrFlip { get; set; }
-        public int Left { get; set; }
         public int Right { get; set; }
-        public int Top { get; set; }
         public int Bottom { get; set; }
         public string Text { get; set; }
         public Dictionary<string, string> Attributes { get; set; }
