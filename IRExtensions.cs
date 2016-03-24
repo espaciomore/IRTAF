@@ -21,7 +21,18 @@ namespace FASTSelenium.ImageRecognition
                             copyPixelOperation: System.Drawing.CopyPixelOperation.SourceCopy
                         );
                     }
-                    catch { } //  TODO: investigate why there are random failures
+                    catch (ArgumentNullException ex) 
+                    {
+                        throw ex;
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        throw ex;
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        throw ex;
+                    }
                 }
 
                 return bmpScreenCapture;
@@ -54,8 +65,8 @@ namespace FASTSelenium.ImageRecognition
             {
                 double left = searchSurface != null ? ((System.Windows.Rect)searchSurface).Left : 0;
                 double top = searchSurface != null ? ((System.Windows.Rect)searchSurface).Top : 0;
-                double right = searchSurface != null ? ((System.Windows.Rect)searchSurface).Right : System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
-                double bottom = searchSurface != null ? ((System.Windows.Rect)searchSurface).Bottom : System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
+                double right = searchSurface != null && ((System.Windows.Rect)searchSurface).Right > 0 ? ((System.Windows.Rect)searchSurface).Right : System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
+                double bottom = searchSurface != null && ((System.Windows.Rect)searchSurface).Bottom > 0 ? ((System.Windows.Rect)searchSurface).Bottom : System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
 
                 bool reverse = false;
                 double x = left, y = top;
@@ -64,18 +75,21 @@ namespace FASTSelenium.ImageRecognition
                     var imageRect = new System.Windows.Rect(new System.Windows.Point(x, y), new System.Windows.Size(bmp1.Width, bmp1.Height));
                     var imageCaptured = imageRect.CaptureFromScreen();
 
-                    if (bmp1.SameAs(imageCaptured))
+                    if (imageCaptured != null)
                     {
-                        return imageRect;
-                    }
+                        if (bmp1.SameAs(imageCaptured))
+                        {
+                            imageCaptured.Dispose();
+                            bmp1.Dispose();
+                            return imageRect;
+                        }
 
-                    if (IRConfig.canSaveScreenSamples)
-                    {
-                        if ((y == top && x == left) || (bmp1.GetPixel(0, 0) == imageCaptured.GetPixel(0, 0)))
-                            IRHelpers.SaveInReportDir(imageCaptured);
-                    }
-                    else
-                    {
+                        if (IRConfig.canSaveScreenSamples)
+                        {
+                            if ((y == top && x == left) || (bmp1.GetPixel(0, 0) == imageCaptured.GetPixel(0, 0)))
+                                IRHelpers.SaveInReportDir(imageCaptured);
+                        }
+                        
                         imageCaptured.Dispose();
                     }
 
@@ -112,24 +126,39 @@ namespace FASTSelenium.ImageRecognition
         {
             try
             {
-                if (!bmp1.Size.Equals(bmp2.Size))
+                try
                 {
-                    return false;
-                }
-                for (int i = 0; i < bmp1.Width; i = 2+i)
-                {
-                    for (int j = 1; j < bmp1.Height; j = 2+j)
+                    if (!bmp1.Size.Equals(bmp2.Size))
                     {
-                        var p1 = bmp1.GetPixel(i, j);
-                        var p2 = bmp2.GetPixel(i, j);
-                        if (p1 != p2)
+                        return false;
+                    }
+                    for (int i = 0; i < bmp1.Width; i = 2 + i)
+                    {
+                        for (int j = 1; j < bmp1.Height; j = 2 + j)
                         {
-                            return false;
+                            var p1 = bmp1.GetPixel(i, j);
+                            var p2 = bmp2.GetPixel(i, j);
+                            if (p1 != p2)
+                            {
+                                return false;
+                            }
                         }
                     }
-                }
 
-                return true;
+                    return true;
+                }
+                catch (ArgumentNullException ex)
+                {
+                    throw ex;
+                }
+                catch (NullReferenceException ex)
+                {
+                    throw ex;
+                }
+                catch (ArgumentException ex)
+                {
+                    throw ex;
+                }
             }
             catch (Exception ex)
             {
