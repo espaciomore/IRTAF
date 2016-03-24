@@ -149,7 +149,7 @@ namespace FASTSelenium.ImageRecognition
         {
             var offset = this.By.GetOffset();
             var searchSurface = new System.Windows.Rect(
-                (new System.Windows.Point((int)offset.X + this.By.Left, (int)offset.Y + this.By.Top)).Translate(),
+                (new System.Windows.Point(Convert.ToInt32(offset.X) + this.By.Left, Convert.ToInt32(offset.Y) + this.By.Top)).Translate(),
                 new System.Windows.Size((this.By.Right - this.By.Left), (this.By.Bottom - this.By.Top))
             );
 
