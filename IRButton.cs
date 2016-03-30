@@ -41,9 +41,9 @@ namespace FASTSelenium.ImageRecognition
             this.TagName = "BUTTON";
         }
 
-        public IRButton Offset(int dx, int dy)
+        public IRButton Offset(int dx, int dy, int? dX=null, int? dY=null)
         {
-            this.By.SetOffset(dx, dy);
+            this.By.SetOffset(dx, dy, dX ?? System.Convert.ToInt32(IRConfig.screenSize.Width), dY ?? System.Convert.ToInt32(IRConfig.screenSize.Height));
 
             return this;
         }
