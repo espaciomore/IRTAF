@@ -72,15 +72,17 @@ namespace FASTSelenium.ImageRecognition
                 double x = left, y = top;
                 while (x < (right - bmp1.Width))
                 {
-                    var imageRect = new System.Windows.Rect(new System.Windows.Point(x, y), new System.Windows.Size(bmp1.Width, bmp1.Height));
+                    var imageRect = new System.Windows.Rect(new System.Windows.Point(x, y), new System.Windows.Size(bmp1.Width * 1.2, bmp1.Height * 1.2));
                     var imageCaptured = imageRect.CaptureFromScreen();
 
                     if (imageCaptured != null)
                     {
-                        if (bmp1.SameAs(imageCaptured))
+                        if (imageCaptured.Contains(bmp1))
                         {
+                            IRHelpers.SaveInReportDir(imageCaptured);
                             imageCaptured.Dispose();
                             bmp1.Dispose();
+
                             return imageRect;
                         }
 
@@ -113,6 +115,10 @@ namespace FASTSelenium.ImageRecognition
             {
                 throw new Exception("BitmapExtensions.GetRectangle failed: " + ex.Message);
             }
+            finally
+            {
+                bmp1.Dispose();
+            }
 
             return null;
         }
@@ -122,30 +128,45 @@ namespace FASTSelenium.ImageRecognition
             return bmp1.GetRectangle(searchSurface).HasValue;
         }
 
-        public static bool SameAs(this System.Drawing.Bitmap bmp1, System.Drawing.Bitmap bmp2)
+        public static bool Contains(this System.Drawing.Bitmap bmp1, System.Drawing.Bitmap bmp2)
         {
             try
             {
                 try
                 {
-                    if (!bmp1.Size.Equals(bmp2.Size))
+                    var threshold = (bmp1.Width * bmp1.Height * 0.4);
+                    var hitCount = 0;
+
+                    for (int i = 0; i < (bmp1.Width * 0.8); i = 1 + i)
                     {
-                        return false;
-                    }
-                    for (int i = 0; i < bmp1.Width; i = 2 + i)
-                    {
-                        for (int j = 1; j < bmp1.Height; j = 2 + j)
+                        for (int j = 0; j < (bmp1.Height * 0.8); j = 1 + j)
                         {
-                            var p1 = bmp1.GetPixel(i, j);
-                            var p2 = bmp2.GetPixel(i, j);
-                            if (p1 != p2)
+                            if (hitCount >= threshold)
+                                return true;
+                            else
+                                hitCount = 0;
+
+                            for (int m = 0; m < (bmp2.Width - i); m = 1 + m)
                             {
-                                return false;
+                                var p1 = bmp1.GetPixel(i + m, j + 0);
+                                var p2 = bmp2.GetPixel(m, 0);
+                                if (!p1.SameAs(p2))
+                                    break;
+
+                                for (int n = 0; n < (bmp2.Height - j); n = 1 + n)
+                                {
+                                    p1 = bmp1.GetPixel(i + m, j + n);
+                                    p2 = bmp2.GetPixel(m, n);
+                                    if (!p1.SameAs(p2))
+                                        break;
+                                    else
+                                        hitCount++;
+                                }
                             }
                         }
                     }
 
-                    return true;
+                    return (hitCount >= threshold);
                 }
                 catch (ArgumentNullException ex)
                 {
@@ -164,6 +185,11 @@ namespace FASTSelenium.ImageRecognition
             {
                 throw new Exception("BitmapExtensions.SameAs failed: " + ex.Message);
             }
+        }
+
+        public static bool SameAs(this System.Drawing.Color c1, System.Drawing.Color c2)
+        {
+            return Math.Abs(c1.A - c2.A) <= 10 && Math.Abs(c1.B - c2.B) <= 5 && Math.Abs(c1.G - c2.G) <= 5 && Math.Abs(c1.R - c2.R) <= 5;
         }
     }
     
