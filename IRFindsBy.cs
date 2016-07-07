@@ -12,18 +12,24 @@ namespace FASTSelenium.ImageRecognition
 
         public string URI { get; set; }
         public RotateFlipType RotateOrFlip { get; set; }
-        public int Right { get; set; }
-        public int Bottom { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public int OffsetTop { get; set; }
+        public int OffsetLeft { get; set; }
         public string Text { get; set; }
 
         public Dictionary<string, string> Attributes = new Dictionary<string, string>();
         public Dictionary<string, string> CssValues = new Dictionary<string, string>();
         public Dictionary<string, System.Windows.Point> OffsetValues = new Dictionary<string, System.Windows.Point>();
+
+        public System.Windows.Rect? SearchPlane;
+        public List<int> searchPlanes = new List<int>(){};
         
 
         public IRFindsBy() : base() { }
 
 
+        #region Private & Protected
         protected int GetOffset_X()
         {
             return GetOffset_X(this.GetOffsetKey());
@@ -63,15 +69,33 @@ namespace FASTSelenium.ImageRecognition
 
             return GetOffset_Y(OffsetKey);
         }
-
+        #endregion
+        
         public void SetOffset(int dx, int dy, int dX, int dY)
         {
             var offsetKey = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:#}x{1:#}", dX, dY);
-            OffsetValues.Add(offsetKey, new System.Windows.Point(dx, dy));
+            if (OffsetValues.ContainsKey(offsetKey))
+            {
+                OffsetValues[offsetKey] = new System.Windows.Point(dx, dy);
+            }
+            else
+            {
+                OffsetValues.Add(offsetKey, new System.Windows.Point(dx, dy));
+            }
         }
 
         public System.Windows.Point GetOffset()
         {
+            if (SearchPlane != null)
+            {
+                return ((System.Windows.Rect)SearchPlane).TopLeft;
+            }
+            else if (searchPlanes.Count > 0)
+            {
+                SearchPlane = IRSearchPlane.GetSearchPlane(searchPlanes, GetScreenSize());
+                return ((System.Windows.Rect)SearchPlane).TopLeft;
+            }
+
             return new System.Windows.Point(this.GetOffset_X(), this.GetOffset_Y());
         }
 
