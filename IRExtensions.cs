@@ -8,7 +8,7 @@ namespace FASTSelenium.ImageRecognition
         {
             try
             {
-                System.Drawing.Bitmap bmpScreenCapture = new System.Drawing.Bitmap(Convert.ToInt32(rect.Width), Convert.ToInt32(rect.Height));
+                System.Drawing.Bitmap bmpScreenCapture = new System.Drawing.Bitmap(Convert.ToInt32(rect.Width), Convert.ToInt32(rect.Height), System.Drawing.Imaging.PixelFormat.Format32bppRgb);
                 using (System.Drawing.Graphics p = System.Drawing.Graphics.FromImage(bmpScreenCapture))
                 {
                     try
@@ -88,7 +88,7 @@ namespace FASTSelenium.ImageRecognition
 
                         if (IRConfig.canSaveScreenSamples)
                         {
-                            if ((y == top && x == left) || (bmp1.GetPixel(0, 0) == imageCaptured.GetPixel(0, 0)))
+                            if (IRConfig.saveAllSamples || (y == top && x == left) || (bmp1.GetPixel(0, 0) == imageCaptured.GetPixel(0, 0)))
                                 IRHelpers.SaveInReportDir(imageCaptured);
                         }
                         
