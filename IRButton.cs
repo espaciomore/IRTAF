@@ -35,10 +35,40 @@ namespace FASTSelenium.ImageRecognition
         public IRButton(IRFindsBy by)
         {
             this.By = by;
+            this.Offset(this.By.OffsetLeft, this.By.OffsetTop);
             this.Text = by.Text;
             this._attributes = by.Attributes;
             this._cssValues = by.CssValues;
             this.TagName = "BUTTON";
+        }
+
+
+        public IRButton AtUpperLeft()
+        {
+            this.By.searchPlanes.Add(IRSearchPlane.UpperLeft);
+
+            return this;
+        }
+
+        public IRButton AtUpperRight()
+        {
+            this.By.searchPlanes.Add(IRSearchPlane.UpperRight);
+
+            return this;
+        }
+
+        public IRButton AtLowerLeft()
+        {
+            this.By.searchPlanes.Add(IRSearchPlane.LowerLeft);
+
+            return this;
+        }
+
+        public IRButton AtLowerRight()
+        {
+            this.By.searchPlanes.Add(IRSearchPlane.LowerRight);
+
+            return this;
         }
 
         public IRButton Offset(int dx, int dy, int? dX=null, int? dY=null)
@@ -148,10 +178,10 @@ namespace FASTSelenium.ImageRecognition
         public IWebElement FindElement()
         {
             var offset = this.By.GetOffset();
-            var searchSurface = new System.Windows.Rect(
+            var searchSurface = this.By.SearchPlane != null ? this.By.SearchPlane : new System.Windows.Rect(
                 (new System.Windows.Point(Convert.ToInt32(offset.X) + this.By.Left, Convert.ToInt32(offset.Y) + this.By.Top)).Translate(),
-                new System.Windows.Size((this.By.Right - this.By.Left), (this.By.Bottom - this.By.Top))
-            );
+                new System.Windows.Size((this.By.Width - this.By.Left), (this.By.Height - this.By.Top))
+                );
 
             if (!File.Exists(IRConfig.MediaPath + this.By.URI))
                 throw new Exception("Image URI does not exist");
