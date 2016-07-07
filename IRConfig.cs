@@ -4,6 +4,8 @@ namespace FASTSelenium.ImageRecognition
     public static class IRConfig
     {
         public static bool canSaveScreenSamples = false;
+        
+        public static bool saveAllSamples = false;
 
         public static int waitTime = 60;
         
