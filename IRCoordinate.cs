@@ -1,3 +1,8 @@
+/*
+ *  Filename:   IRCoordinate.cs
+ *  Author:     Manuel A. Cerda R.
+ *  Date:       03-14-2016
+ */
 using OpenQA.Selenium.Interactions.Internal;
 
 namespace FASTSelenium.ImageRecognition
