@@ -1,3 +1,8 @@
+/*
+ *  Filename:   IRFindsBy.cs
+ *  Author:     Manuel A. Cerda R.
+ *  Date:       03-14-2016
+ */
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -23,7 +28,7 @@ namespace FASTSelenium.ImageRecognition
         public Dictionary<string, System.Windows.Point> OffsetValues = new Dictionary<string, System.Windows.Point>();
 
         public System.Windows.Rect? SearchPlane;
-        public List<int> searchPlanes = new List<int>(){};
+        public List<int> SearchPlanes = new List<int>(){};
         
 
         public IRFindsBy() : base() { }
@@ -90,9 +95,9 @@ namespace FASTSelenium.ImageRecognition
             {
                 return ((System.Windows.Rect)SearchPlane).TopLeft;
             }
-            else if (searchPlanes.Count > 0)
+            else if (SearchPlanes.Count > 0)
             {
-                SearchPlane = IRSearchPlane.GetSearchPlane(searchPlanes, GetScreenSize());
+                SearchPlane = IRSearchPlane.GetSearchPlane(SearchPlanes, GetScreenSize());
                 return ((System.Windows.Rect)SearchPlane).TopLeft;
             }
 
