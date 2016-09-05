@@ -1,3 +1,8 @@
+/*
+ *  Filename:   IRButton.cs
+ *  Author:     Manuel A. Cerda R.
+ *  Date:       03-14-2016
+ */
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions.Internal;
 using System;
@@ -13,9 +18,14 @@ namespace FASTSelenium.ImageRecognition
         #region Private Fields
         private IRFindsBy By { get; set; }
 
-        private System.Windows.Point CenterPoint
+        public System.Windows.Point CenterPoint
         {
             get { return (new System.Windows.Rect(this.Location.Convert(), this.Size.Convert())).GetCenterPoint(); }
+        }
+
+        public System.Drawing.Point ClickableCenterPoint
+        {
+            get { return this.CenterPoint.Convert(); }
         }
 
         private void Enable()
@@ -45,28 +55,28 @@ namespace FASTSelenium.ImageRecognition
 
         public IRButton AtUpperLeft()
         {
-            this.By.searchPlanes.Add(IRSearchPlane.UpperLeft);
+            this.By.SearchPlanes.Add(IRSearchPlane.UpperLeft);
 
             return this;
         }
 
         public IRButton AtUpperRight()
         {
-            this.By.searchPlanes.Add(IRSearchPlane.UpperRight);
+            this.By.SearchPlanes.Add(IRSearchPlane.UpperRight);
 
             return this;
         }
 
         public IRButton AtLowerLeft()
         {
-            this.By.searchPlanes.Add(IRSearchPlane.LowerLeft);
+            this.By.SearchPlanes.Add(IRSearchPlane.LowerLeft);
 
             return this;
         }
 
         public IRButton AtLowerRight()
         {
-            this.By.searchPlanes.Add(IRSearchPlane.LowerRight);
+            this.By.SearchPlanes.Add(IRSearchPlane.LowerRight);
 
             return this;
         }
@@ -74,6 +84,13 @@ namespace FASTSelenium.ImageRecognition
         public IRButton Offset(int dx, int dy, int? dX=null, int? dY=null)
         {
             this.By.SetOffset(dx, dy, dX ?? System.Convert.ToInt32(IRConfig.screenSize.Width), dY ?? System.Convert.ToInt32(IRConfig.screenSize.Height));
+
+            return this;
+        }
+
+        public IRButton OverOffset(int dx, int dy, int? dX = null, int? dY = null)
+        {
+            this.Offset(this.By.OffsetLeft + dx, this.By.OffsetTop + dy, dX, dY);
 
             return this;
         }
@@ -92,11 +109,13 @@ namespace FASTSelenium.ImageRecognition
 
             try
             {
-                IRHelpers.RetryUntil(this, TimeSpan.FromSeconds((double)IRConfig.waitTime));
+                IRHelpers.RetryUntil(this, TimeSpan.FromSeconds((double)IRConfig.waitTime), false);
                 return true;
             }
             catch
             {
+                if (!File.Exists(IRConfig.MediaPath + this.By.URI))
+                    throw new Exception("Image URI does not exist");
                 return false;
             }
         }
@@ -104,6 +123,16 @@ namespace FASTSelenium.ImageRecognition
         public void Clear()
         {
             throw new NotImplementedException("Image Recognition Button does not support Clear()");
+        }
+
+        public IRButton ContextHighlight()
+        {
+            var pen = new System.Drawing.Pen(System.Drawing.Color.Red, 3);
+            var rect = new System.Drawing.Rectangle(this.By.OffsetLeft, this.By.OffsetTop, this.By.Width, this.By.Height);
+
+            IRDisplay.DrawHighlight(pen, rect);
+
+            return this;
         }
 
         public void DoubleClick()
@@ -120,6 +149,16 @@ namespace FASTSelenium.ImageRecognition
             this.DelayOnce();
         }
 
+        public IRButton MultiClick(int i=1)
+        {
+            for (int j = 0; j < i; j++)
+            {
+                this.Click();
+            }
+
+            return this;
+        }
+
         public void ContextClick()
         {
             this.Enable();
@@ -134,11 +173,13 @@ namespace FASTSelenium.ImageRecognition
             this.DelayOnce();
         }
 
-        public void Hover()
+        public IRButton Hover()
         {
             this.Enable();
             IRMouse.Move(screenCoordinates: this.CenterPoint);
             this.DelayOnce();
+
+            return this;
         }
 
         public bool Displayed { get; set; }
@@ -154,7 +195,7 @@ namespace FASTSelenium.ImageRecognition
         {
             return _cssValues[propertyName];
         }
-
+        
         public System.Drawing.Point Location { get; set; }
 
         public bool Selected { get; set; }
@@ -178,19 +219,31 @@ namespace FASTSelenium.ImageRecognition
         public IWebElement FindElement()
         {
             var offset = this.By.GetOffset();
-            var searchSurface = this.By.SearchPlane != null ? this.By.SearchPlane : new System.Windows.Rect(
-                (new System.Windows.Point(Convert.ToInt32(offset.X) + this.By.Left, Convert.ToInt32(offset.Y) + this.By.Top)).Translate(),
-                new System.Windows.Size((this.By.Width - this.By.Left), (this.By.Height - this.By.Top))
+
+            System.Windows.Rect? searchSurface;
+            if(this.By.SearchPlane != null)
+            {
+                searchSurface = this.By.SearchPlane;
+            }
+            else 
+            {
+                searchSurface = new System.Windows.Rect(
+                    new System.Windows.Point(Convert.ToInt32(offset.X) + this.By.Left, Convert.ToInt32(offset.Y) + this.By.Top),
+                    new System.Windows.Size((this.By.Width - this.By.Left), (this.By.Height - this.By.Top))
                 );
+            }
 
             if (!File.Exists(IRConfig.MediaPath + this.By.URI))
                 throw new Exception("Image URI does not exist");
 
             var img = System.Drawing.Image.FromFile(IRConfig.MediaPath + this.By.URI);
-            img.RotateFlip(this.By.RotateOrFlip);
+                img.RotateFlip(this.By.RotateOrFlip);
             var bmp = new System.Drawing.Bitmap(img);
+            var bmpFileName = this.By.URI.Replace('.', '_');
 
-            var _IRButton = bmp.GetRectangle(searchSurface);
+            IRHelpers.SaveInReportDir(bmp, location:"original", name:bmpFileName);
+
+            var _IRButton = bmp.GetRectangle(searchSurface, bmpFileName);
             if (_IRButton.HasValue)
             {
                 this.Location = _IRButton.Value.Location.Convert();
