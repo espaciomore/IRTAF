@@ -1,3 +1,8 @@
+/*
+ *  Filename:   IRSearchPlane.cs
+ *  Author:     Manuel A. Cerda R.
+ *  Date:       03-14-2016
+ */
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,5 +61,4 @@ namespace FASTSelenium.ImageRecognition
             return GetSearchPlane(searchPlanes, newUsingPlane);
         }
     }
-
 }
