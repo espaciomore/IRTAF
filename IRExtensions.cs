@@ -1,3 +1,8 @@
+/*
+ *  Filename:   IRExtensions.cs
+ *  Author:     Manuel A. Cerda R.
+ *  Date:       03-14-2016
+ */
 using System;
 
 namespace FASTSelenium.ImageRecognition
