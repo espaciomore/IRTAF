@@ -1,3 +1,8 @@
+/*
+ *  Filename:   IRHelpers.cs
+ *  Author:     Manuel A. Cerda R.
+ *  Date:       03-14-2016
+ */
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -9,6 +14,9 @@ namespace FASTSelenium.ImageRecognition
 {
     public static class IRHelpers
     {
+        public static double startedTime;
+        public static double expectedTime;
+
         public static void InitElements<T>(T pageObject)
         {
             foreach (PropertyInfo property in pageObject.GetType().GetProperties())
@@ -26,15 +34,14 @@ namespace FASTSelenium.ImageRecognition
             return (T)property.GetCustomAttributes(attrType, false).First();
         }
 
-        public static void RetryUntil(IRButton element, TimeSpan timeout)
+        public static void RetryUntil(IRButton element, TimeSpan timeout, bool canRetry = true)
         {
             try
             {
-                var _startedTime = DateTime.Now.TimeOfDay.TotalMilliseconds - 1;
-                var _waitTime = timeout.TotalMilliseconds;
+                startedTime = DateTime.Now.TimeOfDay.TotalMilliseconds - 1;
+                expectedTime = timeout.TotalMilliseconds;
                 var findElementException = "None";
-                while ((DateTime.Now.TimeOfDay.TotalMilliseconds - _startedTime) < _waitTime)
-                {
+                do {
                     try
                     {
                         element.FindElement();
@@ -44,7 +51,7 @@ namespace FASTSelenium.ImageRecognition
                     {
                         findElementException = ex.Message;
                     }
-                };
+                } while (canRetry && IsTimeOver());
                 
                 throw new Exception(string.Format("Time Interval of {0} second(s) with Exception: {1}", System.Convert.ToString(timeout.TotalSeconds), findElementException));
             }
@@ -54,6 +61,11 @@ namespace FASTSelenium.ImageRecognition
             }
         }
 
+        public static bool IsTimeOver()
+        {
+            return (DateTime.Now.TimeOfDay.TotalMilliseconds - startedTime) < expectedTime;
+        }
+
         public static void WaitUntil(TimeSpan timeout)
         {            
             var _startedTime = DateTime.Now.TimeOfDay.TotalMilliseconds - 1;
@@ -61,14 +73,17 @@ namespace FASTSelenium.ImageRecognition
             while ((DateTime.Now.TimeOfDay.TotalMilliseconds - _startedTime) < _waitTime) { };
         }
 
-        public static void SaveInReportDir(Bitmap b)
+        public static void SaveInReportDir(Bitmap b, string location = "", string name = "Sample")
         {
             using (var tmpImage = new Bitmap(b))
             {
-                if (!Directory.Exists(IRConfig.OutputPath.TrimEnd('\\')))
-                    Directory.CreateDirectory(IRConfig.OutputPath.TrimEnd('\\'));
-
-                var filename = "ScreenSample_" + DateTime.UtcNow.ToString("ddMMMyyyy_HHmmss_fffffff") + ".BMP";
+                var outputPath = IRConfig.OutputPath.TrimEnd('\\');
+                if (!Directory.Exists(outputPath))
+                {
+                    Directory.CreateDirectory(outputPath);
+                }
+                
+                var filename = string.Format("{0}_{1}_{2}.{3}", name, DateTime.UtcNow.ToString("ddMMMyyyy_HHmmss_fffffff"), location, "BMP");
                 tmpImage.Save(Path.Combine(IRConfig.OutputPath, filename), ImageFormat.Bmp);
             }
         }
