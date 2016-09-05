@@ -1,3 +1,8 @@
+/*
+ *  Filename:   IRMouse.cs
+ *  Author:     Manuel A. Cerda R.
+ *  Date:       03-14-2016
+ */
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
