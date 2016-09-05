@@ -1,4 +1,8 @@
-
+/*
+ *  Filename:   IRConfig.cs
+ *  Author:     Manuel A. Cerda R.
+ *  Date:       03-14-2016
+ */
 namespace FASTSelenium.ImageRecognition
 {
     public static class IRConfig
